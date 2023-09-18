@@ -22,56 +22,54 @@ Line   Addr Opcode      Label   Instruction
 0018   0000             	            ;  PSH I -> RS
 0019   0000             	            ;  **********
 0020   0000             	            ;  get RS address to HL, then get contents of RS into DE, then copy DE to HL
-0021   0000 21 2D 00    	LXI H,RS    ;  address of register RS into HL
-0022   0003 5E          	MOV E,M     ;  low order to E (HL) -> E
-0023   0004 2D          	DCR L       ;  bump HL for hi order
-0024   0005 56          	MOV D,M     ;  hi order to D (HL) -> D
-0025   0006 62          	MOV H,D     ;  Set memory pointer HL to DE (RS)
-0026   0007 6B          	MOV L,E     ;  low byte
-0027   0008             	            ;  Now DE == RS pointer, next grab 16 bit IR register from memory and push to RS stack.
-0028   0008 11 27 00    	LXI D,IR    ;  Address of IR to DE
-0029   000B 1A          	LDAX D      ;  A <- (DE)
-0030   000C 2D          	DCR L       ;  RS--
-0031   000D 77          	MOV M,A     ;  (HL) < IR.L
-0032   000E 1C          	INR E       ;  DE++
-0033   000F 1A          	LDAX D      ;  A <-(DE+1)
-0034   0010 2D          	DCR L       ;  RS--
-0035   0011 77          	MOV M,A     ;  (HL) <- IR.H
-0036   0012             	            ;  save contents of HL to RS memory location
-0037   0012 54          	MOV D,H     ;  HL = RS, SAVE HL to DE, then set HL to RS memory location.
-0038   0013 5D          	MOV E,L
-0039   0014 21 2D 00    	LXI H,RS
-0040   0017 73          	MOV M,E     ;  write E to RS.0
-0041   0018 2D          	DCR L
-0042   0019 72          	MOV M,D     ;  write D to RS.1
-0043   001A             	            ;  **********
-0044   001A             	            ;  WA -> I
-0045   001A             	            ;  **********
-0046   001A 11 29 00    	LXI D,WA    ;  General form for Rx -> Ry Get Address Rx [WA]
-0047   001D 21 27 00    	LXI H,IR    ;  Get address of Ry [IR]
-0048   0020 1A          	LDAX D      ;  A <- Rx.L
-0049   0021 77          	MOV M,A     ;  (Ry) <- A
-0050   0022 2C          	INR L       ;  Rx++
-0051   0023 1C          	INR E       ;  Ry++
-0052   0024 1A          	LDAX D      ;  A <- Rx.L
-0053   0025 77          	MOV M,A     ;  (Ry) <- A
-0054   0026             	            ;  **********
-0055   0026             	            ;  (TODO) JMP NEXT
-0056   0026             	            ;  **********
-0057   0026             
-0058   0026             	            ;  **********
-0059   0026             	            ;  (TODO) Write & Test POP RS -> I
-0060   0026             	            ;  **********
-0061   0026             
-0062   0026 76          	HLT
-0063   0027             
-0064   0027             	            ;  Virtual Registers
-0065   0027 40 01       IR	DW $140     ;  arbitrary starting values for testing. will get better numbers when building TIL.
-0066   0029 AA 01       WA	DW $1AA
-0067   002B 00 00       CA	DW 0
-0068   002D A0 00       RS	DW $A0      ;  Return Stack Pointer at 00A0 for ease of checking in first memory page.
-0069   002F             
-0070   002F             	ORG $A0
-0071   00A0 01 02 03 04 STACK	DB 1,2,3,4,5,6
-0071   00A4 05 06       
+0021   0000 2A 27 00    	LHLD RS     ;  Load HL Direct (contents of memory RS go to HL)
+0022   0003 11 21 00    	LXI D,IR    ;  Address of IR to DE
+0023   0006 1A          	LDAX D      ;  A <- (DE)
+0024   0007 2D          	DCR L       ;  RS--
+0025   0008 77          	MOV M,A     ;  (HL) < IR.L
+0026   0009 1C          	INR E       ;  DE++
+0027   000A 1A          	LDAX D      ;  A <-(DE+1)
+0028   000B 2D          	DCR L       ;  RS--
+0029   000C 77          	MOV M,A     ;  (HL) <- IR.H
+0030   000D             	            ;  save contents of HL to RS memory location
+0031   000D 22 27 00    	SHLD RS     ;  store HL @ RS
+0032   0010             
+0033   0010             	            ;  **********
+0034   0010             	            ;  WA -> IR
+0035   0010             	            ;  **********
+0036   0010 11 23 00    	LXI D,WA    ;  General form for Rx -> Ry Get Address Rx [WA]
+0037   0013 21 21 00    	LXI H,IR    ;  Get address of Ry [IR]
+0038   0016 1A          	LDAX D      ;  A <- Rx.L
+0039   0017 77          	MOV M,A     ;  (Ry) <- A
+0040   0018 2C          	INR L       ;  Rx++
+0041   0019 1C          	INR E       ;  Ry++
+0042   001A 1A          	LDAX D      ;  A <- Rx.L
+0043   001B 77          	MOV M,A     ;  (Ry) <- A
+0044   001C             
+0045   001C             	            ;  **********
+0046   001C             	            ;  JMP NEXT
+0047   001C             	            ;  **********
+0048   001C 2A 29 00    	LHLD NEXT   ;  HL <- next
+0049   001F E9          	PCHL        ;  set PC = HL (effective computed jump)
+0050   0020             
+0051   0020             	            ;  **********
+0052   0020             	            ;  (TODO) Write & Test POP RS -> I
+0053   0020             	            ;  **********
+0054   0020             
+0055   0020 76          	HLT
+0056   0021             
+0057   0021             	            ;  Virtual Registers
+0058   0021 40 01       IR	DW $140     ;  arbitrary starting values for testing. will get better numbers when building TIL.
+0059   0023 AA 01       WA	DW $1AA
+0060   0025 00 00       CA	DW 0
+0061   0027 A0 00       RS	DW $A0      ;  Return Stack Pointer at 00A0 for ease of checking in first memory page.
+0062   0029 C0 00       NEXT	DW $C0      ;  Next instruction
+0063   002B             
+0064   002B             	ORG $A0
+0065   00A0 01 02 03 04 STACK	DB 1,2,3,4,5,6
+0065   00A4 05 06       
+0066   00A6             	ORG $C0
+0067   00C0 3E FF       	MVI A,$FF
+0068   00C2 76          	HLT
+0069   00C3             
 Number of errors = 0

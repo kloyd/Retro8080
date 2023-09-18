@@ -18,13 +18,7 @@ COLON
 	            ;  PSH I -> RS
 	            ;  **********
 	            ;  get RS address to HL, then get contents of RS into DE, then copy DE to HL
-	LXI H,RS    ;  address of register RS into HL
-	MOV E,M     ;  low order to E (HL) -> E
-	DCR L       ;  bump HL for hi order
-	MOV D,M     ;  hi order to D (HL) -> D
-	MOV H,D     ;  Set memory pointer HL to DE (RS)
-	MOV L,E     ;  low byte
-	            ;  Now DE == RS pointer, next grab 16 bit IR register from memory and push to RS stack.
+	LHLD RS     ;  Load HL Direct (contents of memory RS go to HL)
 	LXI D,IR    ;  Address of IR to DE
 	LDAX D      ;  A <- (DE)
 	DCR L       ;  RS--
@@ -34,14 +28,10 @@ COLON
 	DCR L       ;  RS--
 	MOV M,A     ;  (HL) <- IR.H
 	            ;  save contents of HL to RS memory location
-	MOV D,H     ;  HL = RS, SAVE HL to DE, then set HL to RS memory location.
-	MOV E,L
-	LXI H,RS
-	MOV M,E     ;  write E to RS.0
-	DCR L
-	MOV M,D     ;  write D to RS.1
+	SHLD RS     ;  store HL @ RS
+
 	            ;  **********
-	            ;  WA -> I
+	            ;  WA -> IR
 	            ;  **********
 	LXI D,WA    ;  General form for Rx -> Ry Get Address Rx [WA]
 	LXI H,IR    ;  Get address of Ry [IR]
@@ -51,9 +41,12 @@ COLON
 	INR E       ;  Ry++
 	LDAX D      ;  A <- Rx.L
 	MOV M,A     ;  (Ry) <- A
+
 	            ;  **********
-	            ;  (TODO) JMP NEXT
+	            ;  JMP NEXT
 	            ;  **********
+	LHLD NEXT   ;  HL <- next
+	PCHL        ;  set PC = HL (effective computed jump)
 
 	            ;  **********
 	            ;  (TODO) Write & Test POP RS -> I
@@ -66,6 +59,11 @@ IR	DW $140     ;  arbitrary starting values for testing. will get better numbers
 WA	DW $1AA
 CA	DW 0
 RS	DW $A0      ;  Return Stack Pointer at 00A0 for ease of checking in first memory page.
+NEXT	DW $C0      ;  Next instruction
 
 	ORG $A0
 STACK	DB 1,2,3,4,5,6
+	ORG $C0
+	MVI A,$FF
+	HLT
+
