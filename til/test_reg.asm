@@ -14,7 +14,9 @@
 	            ;  WA -> IR
 	            ;  JMP NEXT
 COLON
+	            ;  **********
 	            ;  PSH I -> RS
+	            ;  **********
 	            ;  get RS address to HL, then get contents of RS into DE, then copy DE to HL
 	LXI H,RS    ;  address of register RS into HL
 	MOV E,M     ;  low order to E (HL) -> E
@@ -38,18 +40,32 @@ COLON
 	MOV M,E     ;  write E to RS.0
 	DCR L
 	MOV M,D     ;  write D to RS.1
-
+	            ;  **********
 	            ;  WA -> I
+	            ;  **********
+	LXI D,WA    ;  General form for Rx -> Ry Get Address Rx [WA]
+	LXI H,IR    ;  Get address of Ry [IR]
+	LDAX D      ;  A <- Rx.L
+	MOV M,A     ;  (Ry) <- A
+	INR L       ;  Rx++
+	INR E       ;  Ry++
+	LDAX D      ;  A <- Rx.L
+	MOV M,A     ;  (Ry) <- A
+	            ;  **********
+	            ;  (TODO) JMP NEXT
+	            ;  **********
 
-	            ;  JMP NEXT
-	            ;  End for now
+	            ;  **********
+	            ;  (TODO) Write & Test POP RS -> I
+	            ;  **********
+
 	HLT
 
 	            ;  Virtual Registers
-IR	DW $140 ;arbitrary starting values for testing. will get better numbers when building TIL.
-WA	DW 0
+IR	DW $140     ;  arbitrary starting values for testing. will get better numbers when building TIL.
+WA	DW $1AA
 CA	DW 0
-RS	DW $A0	; Return Stack Pointer at 00A0 for ease of checking in first memory page.
+RS	DW $A0      ;  Return Stack Pointer at 00A0 for ease of checking in first memory page.
 
 	ORG $A0
 STACK	DB 1,2,3,4,5,6
