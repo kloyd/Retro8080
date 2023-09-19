@@ -12,104 +12,120 @@ Line   Addr Opcode      Label   Instruction
 0008   0000             	            ;  ********************
 0009   0000             	            ;  See default value below.
 0010   0000             
-0011   0000             	            ;  Basic definition of COLON routine
-0012   0000             	            ;  PSH IR -> RS
-0013   0000             	            ;  WA -> IR
-0014   0000             	            ;  JMP NEXT
-0015   0000             COLON
-0016   0000             	            ;  PSH I -> RS
-0017   0000             	            ;  get RS address to HL, then get contents of RS into DE, then copy DE to HL
-0018   0000 2A 5B 00    	LHLD RS     ;  Load HL Direct (contents of memory RS go to HL)
-0019   0003 11 55 00    	LXI D,IR    ;  Address of IR to DE
-0020   0006 1A          	LDAX D      ;  A <- (DE)
-0021   0007 2D          	DCR L       ;  RS--
-0022   0008 77          	MOV M,A     ;  (HL) < IR.L
-0023   0009 1C          	INR E       ;  DE++
-0024   000A 1A          	LDAX D      ;  A <-(DE+1)
-0025   000B 2D          	DCR L       ;  RS--
-0026   000C 77          	MOV M,A     ;  (HL) <- IR.H
-0027   000D             	            ;  save contents of HL to RS memory location
-0028   000D 22 5B 00    	SHLD RS     ;  store HL @ RS
-0029   0010             
-0030   0010             	            ;  WA -> IR
-0031   0010 11 57 00    	LXI D,WA    ;  General form for Rx -> Ry Get Address Rx [WA]
-0032   0013 21 55 00    	LXI H,IR    ;  Get address of Ry [IR]
-0033   0016 1A          	LDAX D      ;  A <- Rx.L
-0034   0017 77          	MOV M,A     ;  (Ry) <- A
-0035   0018 2C          	INR L       ;  Rx++
-0036   0019 1C          	INR E       ;  Ry++
-0037   001A 1A          	LDAX D      ;  A <- Rx.L
-0038   001B 77          	MOV M,A     ;  (Ry) <- A
-0039   001C             
-0040   001C             	            ;  JMP NEXT
-0041   001C 2A 5D 00    	LHLD NXTR   ;  HL <- next
-0042   001F E9          	PCHL        ;  set PC = HL (effective computed jump)
-0043   0020             
-0044   0020 22 00       SEMI	DW $+2
-0045   0022             	            ;  POP RS -> IR
-0046   0022 2A 5B 00    	LHLD RS     ;  Reverse of PSH. increment RS, grab byte, store at DE (location of IR)
-0047   0025 11 55 00    	LXI D,IR
-0048   0028 2C          	INR L       ;  RS++
-0049   0029 7E          	MOV A,M
-0050   002A 12          	STAX D
-0051   002B 1D          	DCR E       ;  IR--
-0052   002C 2C          	INR L       ;  RS++
-0053   002D 7E          	MOV A,M     ;  high byte
-0054   002E 12          	STAX D
-0055   002F 22 5B 00    	SHLD RS     ;  save HL to RS (updated value)
-0056   0032             
-0057   0032             
-0058   0032             NEXT	            ;  @IR -> WA
-0059   0032 2A 55 00    	LHLD IR
-0060   0035 11 57 00    	LXI D,WA
-0061   0038 7E          	MOV A,M
-0062   0039 12          	STAX D
-0063   003A 2C          	INR L
-0064   003B 1C          	INR E
-0065   003C 7E          	MOV A,M
-0066   003D 12          	STAX D
-0067   003E 2C          	INR L       ;  IR = IR + 2 (INR twice)
-0068   003F 2C          	INR L
-0069   0040 22 55 00    	SHLD IR     ;  save IR
-0070   0043             	            ;
-0071   0043             RUN
-0072   0043 2A 57 00    	LHLD WA     ;  @WA -> CA
-0073   0046 11 59 00    	LXI D,CA
-0074   0049 7E          	MOV A,M
-0075   004A 12          	STAX D
-0076   004B 2C          	INR L
-0077   004C 1C          	INR E
-0078   004D 7E          	MOV A,M
-0079   004E 12          	STAX D
-0080   004F 2C          	INR L       ;  WA = WA + 2
-0081   0050 2C          	INR L
-0082   0051 22 57 00    	SHLD WA
-0083   0054             	            ;  CA -> PC
-0084   0054             
-0085   0054             
-0086   0054 76          	HLT
-0087   0055             
-0088   0055             	            ;  Testing virtual 16-bit registers held in memory.
-0089   0055             	            ;  8080 cpu is limited to 3 general purpose 16 bit registers
-0090   0055             	            ;  The Threaded Interpetive Language (TIL) requires the following virtual registers.
-0091   0055             	            ;  IR Instruction Register - Address of next instruction in threaded list.
-0092   0055             	            ;  WA Word Address Register - word address of current keyword
-0093   0055             	            ;  CA Code Address Register
-0094   0055             	            ;  RS Return Stack Register
-0095   0055             	            ;  SP Stack Pointer == 8080 SP
-0096   0055             	            ;  PC Program Counter == 8080 PC
-0097   0055             	            ;  Virtual Registers
-0098   0055 40 01       IR	DW $140     ;  arbitrary starting values for testing. will get better numbers when building TIL.
-0099   0057 AA 01       WA	DW $1AA
-0100   0059 00 00       CA	DW 0
-0101   005B A0 00       RS	DW $A0      ;  Return Stack Pointer at 00A0 for ease of checking in first memory page.
-0102   005D 32 00       NXTR	DW NEXT     ;  set NXTR (NeXT Register) to next.
-0103   005F             
-0104   005F             	ORG $A0
-0105   00A0 01 02 03 04 STACK	DB 1,2,3,4,5,6
-0105   00A4 05 06       
-0106   00A6             	ORG $C0
-0107   00C0 3E FF       	MVI A,$FF
-0108   00C2 76          	HLT
-0109   00C3             
+0011   0000 02 00       SEMI:	DW $+2
+0012   0002             	            ;  POP RS -> IR
+0013   0002 2A 71 00    	LHLD RS     ;  Reverse of PSH. increment RS, grab byte, store at DE (location of IR)
+0014   0005 11 6B 00    	LXI D,IR
+0015   0008 2C          	INR L       ;  RS++
+0016   0009 7E          	MOV A,M
+0017   000A 12          	STAX D
+0018   000B 1D          	DCR E       ;  IR--
+0019   000C 2C          	INR L       ;  RS++
+0020   000D 7E          	MOV A,M     ;  high byte
+0021   000E 12          	STAX D
+0022   000F 22 71 00    	SHLD RS     ;  save HL to RS (updated value)
+0023   0012             
+0024   0012             NEXT:	            ;  @IR -> WA
+0025   0012 2A 6B 00    	LHLD IR
+0026   0015 11 6D 00    	LXI D,WA
+0027   0018 7E          	MOV A,M
+0028   0019 12          	STAX D
+0029   001A 2C          	INR L
+0030   001B 1C          	INR E
+0031   001C 7E          	MOV A,M
+0032   001D 12          	STAX D
+0033   001E 2C          	INR L       ;  IR = IR + 2 (INR twice)
+0034   001F 2C          	INR L
+0035   0020 22 6B 00    	SHLD IR     ;  save IR
+0036   0023             
+0037   0023             RUN:
+0038   0023 2A 6D 00    	LHLD WA     ;  @WA -> CA
+0039   0026 11 6F 00    	LXI D,CA
+0040   0029 7E          	MOV A,M
+0041   002A 12          	STAX D
+0042   002B 2C          	INR L
+0043   002C 1C          	INR E
+0044   002D 7E          	MOV A,M
+0045   002E 12          	STAX D
+0046   002F 2C          	INR L       ;  WA = WA + 2
+0047   0030 2C          	INR L
+0048   0031 22 6D 00    	SHLD WA
+0049   0034             	            ;  CA -> PC
+0050   0034             
+0051   0034 11 6F 00    	LXI D,CA
+0052   0037 1A          	LDAX D
+0053   0038 67          	MOV H,A
+0054   0039 1C          	INR E
+0055   003A 6F          	MOV L,A
+0056   003B E9          	PCHL        ;  Causes jump to contents of CA
+0057   003C             
+0058   003C             COLON:
+0059   003C             	            ;  PSH I -> RS
+0060   003C 2A 71 00    	LHLD RS     ;  get RS address to HL, then get contents of RS into DE, then copy DE to HL
+0061   003F 11 6B 00    	LXI D,IR    ;  Address of IR to DE
+0062   0042 1A          	LDAX D      ;  A <- (DE)
+0063   0043 2D          	DCR L       ;  RS--
+0064   0044 77          	MOV M,A     ;  (HL) < IR.L
+0065   0045 1C          	INR E       ;  DE++
+0066   0046 1A          	LDAX D      ;  A <-(DE+1)
+0067   0047 2D          	DCR L       ;  RS--
+0068   0048 77          	MOV M,A     ;  (HL) <- IR.H
+0069   0049             	            ;  save contents of HL to RS memory location
+0070   0049 22 71 00    	SHLD RS     ;  store HL @ RS
+0071   004C             
+0072   004C             	            ;  WA -> IR
+0073   004C 11 6D 00    	LXI D,WA    ;  General form for Rx -> Ry Get Address Rx [WA]
+0074   004F 21 6B 00    	LXI H,IR    ;  Get address of Ry [IR]
+0075   0052 1A          	LDAX D      ;  A <- Rx.L
+0076   0053 77          	MOV M,A     ;  (Ry) <- A
+0077   0054 2C          	INR L       ;  Rx++
+0078   0055 1C          	INR E       ;  Ry++
+0079   0056 1A          	LDAX D      ;  A <- Rx.L
+0080   0057 77          	MOV M,A     ;  (Ry) <- A
+0081   0058             
+0082   0058             	            ;  JMP NEXT
+0083   0058 2A 73 00    	LHLD NXTR   ;  HL <- next
+0084   005B E9          	PCHL        ;  set PC = HL (effective computed jump)
+0085   005C             
+0086   005C             ; EXECUTE word definition dictionary entry. 7EXE (length 7, first three chars EXE)
+0087   005C             
+0088   005C 07 45 58 45 	DB 7,'E','X','E'
+0089   0060 00 00       	DW 00	; Pointer to next Word Definition (filled when next word defined)
+0090   0062             EXECUTE:
+0091   0062 64 00       	DW $+2
+0092   0064 E1          	            POP H
+0093   0065 C3 23 00    	            JMP RUN
+0094   0068             
+0095   0068             
+0096   0068             	            ;
+0097   0068             
+0098   0068             
+0099   0068             
+0100   0068             PSEUDO:
+0101   0068 3E AA       	MvI A,$AA
+0102   006A 76          	HLT
+0103   006B             
+0104   006B             	            ;  Testing virtual 16-bit registers held in memory.
+0105   006B             	            ;  8080 cpu is limited to 3 general purpose 16 bit registers
+0106   006B             	            ;  The Threaded Interpetive Language (TIL) requires the following virtual registers.
+0107   006B             	            ;  IR Instruction Register - Address of next instruction in threaded list.
+0108   006B             	            ;  WA Word Address Register - word address of current keyword
+0109   006B             	            ;  CA Code Address Register
+0110   006B             	            ;  RS Return Stack Register
+0111   006B             	            ;  SP Stack Pointer == 8080 SP
+0112   006B             	            ;  PC Program Counter == 8080 PC
+0113   006B             	            ;  Virtual Registers
+0114   006B 40 01       IR	DW $140     ;  arbitrary starting values for testing. will get better numbers when building TIL.
+0115   006D AA 01       WA	DW $1AA
+0116   006F 68 00       CA	DW PSEUDO	; for testing... point to a 'pseudo' word.
+0117   0071 A0 00       RS	DW $A0      ;  Return Stack Pointer at 00A0 for ease of checking in first memory page.
+0118   0073 12 00       NXTR	DW NEXT     ;  set NXTR (NeXT Register) to next.
+0119   0075             
+0120   0075             	ORG $A0
+0121   00A0 01 02 03 04 STACK	DB 1,2,3,4,5,6
+0121   00A4 05 06       
+0122   00A6             	ORG $C0
+0123   00C0 3E FF       	MVI A,$FF
+0124   00C2 76          	HLT
+0125   00C3             
 Number of errors = 0

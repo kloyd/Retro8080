@@ -8,14 +8,56 @@
 	            ;  ********************
 	            ;  See default value below.
 
-	            ;  Basic definition of COLON routine
-	            ;  PSH IR -> RS
-	            ;  WA -> IR
-	            ;  JMP NEXT
-COLON
+SEMI:	DW $+2
+	            ;  POP RS -> IR
+	LHLD RS     ;  Reverse of PSH. increment RS, grab byte, store at DE (location of IR)
+	LXI D,IR
+	INR L       ;  RS++
+	MOV A,M
+	STAX D
+	DCR E       ;  IR--
+	INR L       ;  RS++
+	MOV A,M     ;  high byte
+	STAX D
+	SHLD RS     ;  save HL to RS (updated value)
+
+NEXT:	            ;  @IR -> WA
+	LHLD IR
+	LXI D,WA
+	MOV A,M
+	STAX D
+	INR L
+	INR E
+	MOV A,M
+	STAX D
+	INR L       ;  IR = IR + 2 (INR twice)
+	INR L
+	SHLD IR     ;  save IR
+
+RUN:
+	LHLD WA     ;  @WA -> CA
+	LXI D,CA
+	MOV A,M
+	STAX D
+	INR L
+	INR E
+	MOV A,M
+	STAX D
+	INR L       ;  WA = WA + 2
+	INR L
+	SHLD WA
+	            ;  CA -> PC
+
+	LXI D,CA
+	LDAX D
+	MOV H,A
+	INR E
+	MOV L,A
+	PCHL        ;  Causes jump to contents of CA
+
+COLON:
 	            ;  PSH I -> RS
-	            ;  get RS address to HL, then get contents of RS into DE, then copy DE to HL
-	LHLD RS     ;  Load HL Direct (contents of memory RS go to HL)
+	LHLD RS     ;  get RS address to HL, then get contents of RS into DE, then copy DE to HL
 	LXI D,IR    ;  Address of IR to DE
 	LDAX D      ;  A <- (DE)
 	DCR L       ;  RS--
@@ -41,48 +83,22 @@ COLON
 	LHLD NXTR   ;  HL <- next
 	PCHL        ;  set PC = HL (effective computed jump)
 
-SEMI	DW $+2
-	            ;  POP RS -> IR
-	LHLD RS     ;  Reverse of PSH. increment RS, grab byte, store at DE (location of IR)
-	LXI D,IR
-	INR L       ;  RS++
-	MOV A,M
-	STAX D
-	DCR E       ;  IR--
-	INR L       ;  RS++
-	MOV A,M     ;  high byte
-	STAX D
-	SHLD RS     ;  save HL to RS (updated value)
+; EXECUTE word definition dictionary entry. 7EXE (length 7, first three chars EXE)
+
+	DB 7,'E','X','E'
+	DW 00	; Pointer to next Word Definition (filled when next word defined)
+EXECUTE:
+	DW $+2
+	            POP H
+	            JMP RUN
 
 
-NEXT	            ;  @IR -> WA
-	LHLD IR
-	LXI D,WA
-	MOV A,M
-	STAX D
-	INR L
-	INR E
-	MOV A,M
-	STAX D
-	INR L       ;  IR = IR + 2 (INR twice)
-	INR L
-	SHLD IR     ;  save IR
 	            ;
-RUN
-	LHLD WA     ;  @WA -> CA
-	LXI D,CA
-	MOV A,M
-	STAX D
-	INR L
-	INR E
-	MOV A,M
-	STAX D
-	INR L       ;  WA = WA + 2
-	INR L
-	SHLD WA
-	            ;  CA -> PC
 
 
+
+PSEUDO:
+	MvI A,$AA
 	HLT
 
 	            ;  Testing virtual 16-bit registers held in memory.
@@ -97,7 +113,7 @@ RUN
 	            ;  Virtual Registers
 IR	DW $140     ;  arbitrary starting values for testing. will get better numbers when building TIL.
 WA	DW $1AA
-CA	DW 0
+CA	DW PSEUDO	; for testing... point to a 'pseudo' word.
 RS	DW $A0      ;  Return Stack Pointer at 00A0 for ease of checking in first memory page.
 NXTR	DW NEXT     ;  set NXTR (NeXT Register) to next.
 
