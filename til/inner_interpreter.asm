@@ -2,14 +2,18 @@
 	            ;  **********
 	            ;  Inner Interpreter of TIL
 	            ;  **********
+
+	            ;  ********************
+	            ;  Initialization - more to come, but first, get the address of NEXT
+	            ;  ********************
+	            ;  See default value below.
+
 	            ;  Basic definition of COLON routine
 	            ;  PSH IR -> RS
 	            ;  WA -> IR
 	            ;  JMP NEXT
 COLON
-	            ;  **********
 	            ;  PSH I -> RS
-	            ;  **********
 	            ;  get RS address to HL, then get contents of RS into DE, then copy DE to HL
 	LHLD RS     ;  Load HL Direct (contents of memory RS go to HL)
 	LXI D,IR    ;  Address of IR to DE
@@ -23,10 +27,7 @@ COLON
 	            ;  save contents of HL to RS memory location
 	SHLD RS     ;  store HL @ RS
 
-
-	            ;  **********
 	            ;  WA -> IR
-	            ;  **********
 	LXI D,WA    ;  General form for Rx -> Ry Get Address Rx [WA]
 	LXI H,IR    ;  Get address of Ry [IR]
 	LDAX D      ;  A <- Rx.L
@@ -36,25 +37,49 @@ COLON
 	LDAX D      ;  A <- Rx.L
 	MOV M,A     ;  (Ry) <- A
 
-	            ;  **********
 	            ;  JMP NEXT
-	            ;  **********
-	LHLD NEXT   ;  HL <- next
+	LHLD NXTR   ;  HL <- next
 	PCHL        ;  set PC = HL (effective computed jump)
-
-	            ;  **********
-	            ;  (TODO) Write & Test POP RS -> I
-	            ;  **********
 
 SEMI	DW $+2
 	            ;  POP RS -> IR
+	LHLD RS     ;  Reverse of PSH. increment RS, grab byte, store at DE (location of IR)
+	LXI D,IR
+	INR L       ;  RS++
+	MOV A,M
+	STAX D
+	DCR E       ;  IR--
+	INR L       ;  RS++
+	MOV A,M     ;  high byte
+	STAX D
+	SHLD RS     ;  save HL to RS (updated value)
+
 
 NEXT	            ;  @IR -> WA
-	            ;  IR = IR + 2
+	LHLD IR
+	LXI D,WA
+	MOV A,M
+	STAX D
+	INR L
+	INR E
+	MOV A,M
+	STAX D
+	INR L       ;  IR = IR + 2 (INR twice)
+	INR L
+	SHLD IR     ;  save IR
 	            ;
 RUN
-	            ;  @WA -> CA
-	            ;  WA = WA + 2
+	LHLD WA     ;  @WA -> CA
+	LXI D,CA
+	MOV A,M
+	STAX D
+	INR L
+	INR E
+	MOV A,M
+	STAX D
+	INR L       ;  WA = WA + 2
+	INR L
+	SHLD WA
 	            ;  CA -> PC
 
 
@@ -74,7 +99,7 @@ IR	DW $140     ;  arbitrary starting values for testing. will get better numbers
 WA	DW $1AA
 CA	DW 0
 RS	DW $A0      ;  Return Stack Pointer at 00A0 for ease of checking in first memory page.
-NEXTR	DW 0
+NXTR	DW NEXT     ;  set NXTR (NeXT Register) to next.
 
 	ORG $A0
 STACK	DB 1,2,3,4,5,6
