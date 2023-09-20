@@ -83,18 +83,51 @@ COLON:
 	LHLD NXTR   ;  HL <- next
 	PCHL        ;  set PC = HL (effective computed jump)
 
-; EXECUTE word definition dictionary entry. 7EXE (length 7, first three chars EXE)
+	            ;  EXECUTE word definition dictionary entry. 7EXE (length 7, first three chars EXE)
 
 	DB 7,'E','X','E'
-	DW 00	; Pointer to next Word Definition (filled when next word defined)
+	DW 00       ;  Pointer to next Word Definition (filled when next word defined)
 EXECUTE:
 	DW $+2
-	            POP H
-	            JMP RUN
+	POP H
+	JMP RUN
 
 
 	            ;
 
+
+	            ;  *** TIL code... contrived example
+
+	DB 3,'D','U','P'
+	DW CONSTANT   ;  Link Address to CONSTANT
+DUP:	DW $+2
+	POP H       ;  POP SP -> CA
+	PUSH H      ;  PSH CA -> SP
+	PUSH H      ;  PSH CA -> SP
+	JMP NEXT
+
+	DB 8,'C','O','N'
+	DW 0
+CONSTANT:
+	DW $+2
+	DW COLON    ;  COLON starts a definition
+	; CREATE
+	; ,
+	; SCODE
+	; @WA -> CA
+	LHLD WA     ;  @WA -> CA
+	LXI D,CA
+	MOV A,M
+	MOV B,A
+	STAX D
+	INR L
+	INR E
+	MOV A,M
+	MOV C,A
+	STAX D
+	; PSH CA -> SP
+	PUSH B
+	JMP NEXT
 
 
 PSEUDO:
@@ -113,7 +146,7 @@ PSEUDO:
 	            ;  Virtual Registers
 IR	DW $140     ;  arbitrary starting values for testing. will get better numbers when building TIL.
 WA	DW $1AA
-CA	DW PSEUDO	; for testing... point to a 'pseudo' word.
+CA	DW PSEUDO   ;  for testing... point to a 'pseudo' word.
 RS	DW $A0      ;  Return Stack Pointer at 00A0 for ease of checking in first memory page.
 NXTR	DW NEXT     ;  set NXTR (NeXT Register) to next.
 
