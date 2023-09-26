@@ -7,6 +7,15 @@
 	            ;  Initialization - more to come, but first, get the address of NEXT
 	            ;  ********************
 	            ;  See default value below.
+	            ;  Setup Stack Pointer. N.B. should be higher for real program.
+
+START:	LXI SP,$100
+	            ;  load pointers to FUNNY definition.
+
+	            ;  test jump to SEMI
+	LHLD SEMI
+	PCHL
+	            ;
 
 SEMI:	DW $+2
 	            ;  POP RS -> IR
@@ -111,13 +120,13 @@ DUP:	DW $+2
 CONSTANT:
 	DW $+2
 	DW COLON    ;  COLON starts a definition
-	; CREATE
-	; ,
-	; SCODE
-	; @WA -> CA
+	            ;  CREATE
+	            ;  ,
+	            ;  SCODE
+	            ;  @WA -> CA
 	LHLD WA     ;  @WA -> CA
 	LXI D,CA
-	MOV A,M
+	MOV A,M     ;  BC will be CA
 	MOV B,A
 	STAX D
 	INR L
@@ -125,9 +134,29 @@ CONSTANT:
 	MOV A,M
 	MOV C,A
 	STAX D
-	; PSH CA -> SP
+	            ;  PSH CA -> SP
 	PUSH B
 	JMP NEXT
+
+	DB 6,'2','G','R'
+	DW 0
+GROSS2:	DW CONSTANT
+	DW 0120
+
+DLNK2	DB 4,'2','D','U'
+	DW 0
+DUP2:	DW COLON
+	DW DUP
+	DW DUP
+	DW SEMI
+
+	            ;  FUNNY
+	DB 5,'F','U','N'
+	DW DLNK2    ;  Dictionary pointer
+	DW COLON    ;  definition -> : FUNNY GROSS2 DUP2 ;
+	DW GROSS2   ;  address of GROSS2
+	DW DUP2     ;  address of 2DUP
+	DW SEMI     ;  address of SEMI
 
 
 PSEUDO:
