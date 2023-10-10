@@ -9,7 +9,7 @@
 	            ;  See default value below.
 	            ;  Setup Stack Pointer. N.B. should be higher for real program.
 
-START:	LXI SP,$100
+START:	LXI SP,$1000
 	            ;  load pointers to FUNNY definition.
 
 	            ;  test jump to SEMI

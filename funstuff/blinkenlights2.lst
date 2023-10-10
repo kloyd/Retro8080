@@ -1,0 +1,40 @@
+---------------------------------------------
+8085 ASSEMBLER LISTING
+Line   Addr Opcode      Label   Instruction
+---------------------------------------------
+0001   0000             ; Altair simple blinken lights
+0002   0000             ; Does what Kill-The-Bit does, only it doesn't kill bits
+0003   0000             ; Reads the SENSE switches and puts that into C making BC = 00SS where SS is sense switches
+0004   0000             ; if Sense == 0, it adds one otherwise it would be an endless loop
+0005   0000             ; See DAD B (Add BC to HL... HL will never increment)
+0006   0000             ;
+0007   0000             ; Start at 0000
+0008   0000             
+0009   0000             	ORG 0h
+0010   0000 21 00 00    MAIN	LXI H,0		; hl = 0000
+0011   0003 16 80       	MVI D, 080h	; Initial pattern = bit 15 will be on.
+0012   0005             
+0013   0005 DB FF       INPDEL	IN 0ffh
+0014   0007 FE FF       	CPI 0ffh	; All Sense switches on is a HALT.
+0015   0009 CA 1F 00    	JZ DONE
+0016   000C C6 01       	ADI 1
+0017   000E 4F          	MOV C, A	; sense switches to B
+0018   000F 06 00       	MVI B, 0	; BC = <sense>00
+0019   0011             
+0020   0011             
+0021   0011 1A          BLINK	LDAX D
+0022   0012 1A          	LDAX D
+0023   0013 1A          	LDAX D
+0024   0014 1A          	LDAX D
+0025   0015 09          	DAD B
+0026   0016 D2 11 00    	JNC BLINK
+0027   0019 7A          	MOV A,D
+0028   001A 0F          	RRC
+0029   001B 57          	MOV D,A
+0030   001C C3 05 00    	JMP INPDEL
+0031   001F             
+0032   001F 76          DONE	HLT
+0033   0020             
+0034   0020 22 00       SEMI	DW *+2
+0035   0022             	END
+Number of errors = 0

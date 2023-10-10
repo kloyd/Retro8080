@@ -13,7 +13,7 @@ Line   Addr Opcode      Label   Instruction
 0009   0000             	            ;  See default value below.
 0010   0000             	            ;  Setup Stack Pointer. N.B. should be higher for real program.
 0011   0000             
-0012   0000 31 00 01    START:	LXI SP,$100
+0012   0000 31 00 10    START:	LXI SP,$1000
 0013   0003             	            ;  load pointers to FUNNY definition.
 0014   0003             
 0015   0003             	            ;  test jump to SEMI
