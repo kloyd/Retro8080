@@ -36,9 +36,9 @@ BLINK	LDAX D
 	; Halt if FF on sense switches. Some way to drop out.
 DONE	HLT
 
-	;  Put your pattern list here... this is just jiggy wiggy back forth here.
-DATA	DB 0AAh,055h,0AAh,055h,0h
 	; Somewhere to save HL, since it will get clobbered by the delay routine.
 SAVE_HL	DW 0
+	;  Put your pattern list here... this is just jiggy wiggy back forth here.
+DATA	DB 0AAh,055h,0AAh,055h,0h
 
 	END

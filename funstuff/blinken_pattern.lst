@@ -8,16 +8,16 @@ Line   Addr Opcode      Label   Instruction
 0004   0000                     ;  Whatever you want, put it at DATA and terminate the list with 0.
 0005   0000             
 0006   0000             	ORG 0h
-0007   0000 21 2F 00    INIT	LXI H,DATA   ;  HL points to blinken data
-0008   0003 22 34 00    	SHLD SAVE_HL
+0007   0000 21 31 00    INIT	LXI H,DATA   ;  HL points to blinken data
+0008   0003 22 2F 00    	SHLD SAVE_HL
 0009   0006             
-0010   0006 2A 34 00    GETD	LHLD SAVE_HL   ;  restore HL
+0010   0006 2A 2F 00    GETD	LHLD SAVE_HL   ;  restore HL
 0011   0009 7E          	MOV A,M     ;  get data @ HL
 0012   000A FE 00       	CPI 0       ;  End of the data list?
 0013   000C CA 00 00    	JZ INIT     ;  Yes, reset HL pointer.
 0014   000F 57          	MOV D,A     ;  No, put in D register for the display pattern.
 0015   0010 2C          	INR L       ;  HL++
-0016   0011 22 34 00    	SHLD SAVE_HL   ;  Save data
+0016   0011 22 2F 00    	SHLD SAVE_HL   ;  Save data
 0017   0014             
 0018   0014             
 0019   0014 21 00 00    INPDEL	LXI H,0     ;  Init HL to zero before starting the delay loop
@@ -40,11 +40,11 @@ Line   Addr Opcode      Label   Instruction
 0036   002E             	; Halt if FF on sense switches. Some way to drop out.
 0037   002E 76          DONE	HLT
 0038   002F             
-0039   002F             	;  Put your pattern list here... this is just jiggy wiggy back forth here.
-0040   002F AA 55 AA 55 DATA	DB 0AAh,055h,0AAh,055h,0h
-0040   0033 00          
-0041   0034             	; Somewhere to save HL, since it will get clobbered by the delay routine.
-0042   0034 00 00       SAVE_HL	DW 0
+0039   002F             	; Somewhere to save HL, since it will get clobbered by the delay routine.
+0040   002F 00 00       SAVE_HL	DW 0
+0041   0031             	;  Put your pattern list here... this is just jiggy wiggy back forth here.
+0042   0031 AA 55 AA 55 DATA	DB 0AAh,055h,0AAh,055h,0h
+0042   0035 00          
 0043   0036             
 0044   0036             	END
 Number of errors = 0
