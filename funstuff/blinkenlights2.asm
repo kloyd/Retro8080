@@ -18,7 +18,7 @@ INPDEL	IN 0ffh
 	MVI B, 0	; BC = <sense>00
 
 
-BLINK	LDAX D
+cdBLINK	LDAX D
 	LDAX D
 	LDAX D
 	LDAX D
