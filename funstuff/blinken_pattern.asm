@@ -9,7 +9,7 @@ INIT	LXI H,DATA   ;  HL points to blinken data
 
 GETD	LHLD SAVE_HL   ;  restore HL
 	MOV A,M     ;  get data @ HL
-	CPI 0       ;  End of the data list?
+	CPI EOF       ;  End of the data list?
 	JZ INIT     ;  Yes, reset HL pointer.
 	MOV D,A     ;  No, put in D register for the display pattern.
 	INR L       ;  HL++
@@ -39,6 +39,49 @@ DONE	HLT
 	; Somewhere to save HL, since it will get clobbered by the delay routine.
 SAVE_HL	DW 0
 	;  Put your pattern list here... this is just jiggy wiggy back forth here.
-DATA	DB 0AAh,055h,0AAh,055h,0h
 
+DATA	DB 00010001b
+	DB 00100010b
+	DB 01000100b
+	DB 10001000b
+	db 00010001b
+	db 00100010b
+	DB 01000100b
+	db 10001000b
+	db 00010000b
+	db 00100000b
+	db 01000000b
+	db 10000000b
+	db 00000000b
+	db 10000000b
+	db 11000000b
+	db 01100000b
+	db 00110000b
+	db 00011000b
+	db 00001100b
+	db 00000110b
+	db 00000011b
+	db 00000001b
+	db 00000000b
+	db 00000001b
+	db 00000011b
+	db 00000111b
+	db 00001111b
+	db 00011111b
+	db 00111111b
+	db 01111111b
+	db 11111111b
+	db 11111110b
+	db 11111100b
+	db 11111000b
+	db 11110000b
+	db 11100000b
+	db 11000000b
+	db 10000000b
+	db 00000000b
+
+	DB EOF
+
+
+EOF	EQU 042  ; end of data
 	END

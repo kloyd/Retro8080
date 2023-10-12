@@ -13,7 +13,7 @@ Line   Addr Opcode      Label   Instruction
 0009   0006             
 0010   0006 2A 2F 00    GETD	LHLD SAVE_HL   ;  restore HL
 0011   0009 7E          	MOV A,M     ;  get data @ HL
-0012   000A FE 00       	CPI 0       ;  End of the data list?
+0012   000A FE 2A       	CPI EOF       ;  End of the data list?
 0013   000C CA 00 00    	JZ INIT     ;  Yes, reset HL pointer.
 0014   000F 57          	MOV D,A     ;  No, put in D register for the display pattern.
 0015   0010 2C          	INR L       ;  HL++
@@ -43,8 +43,50 @@ Line   Addr Opcode      Label   Instruction
 0039   002F             	; Somewhere to save HL, since it will get clobbered by the delay routine.
 0040   002F 00 00       SAVE_HL	DW 0
 0041   0031             	;  Put your pattern list here... this is just jiggy wiggy back forth here.
-0042   0031 AA 55 AA 55 DATA	DB 0AAh,055h,0AAh,055h,0h
-0042   0035 00          
-0043   0036             
-0044   0036             	END
+0042   0031             
+0043   0031 11          DATA	DB 00010001b
+0044   0032 22          	DB 00100010b
+0045   0033 44          	DB 01000100b
+0046   0034 88          	DB 10001000b
+0047   0035 11          	db 00010001b
+0048   0036 22          	db 00100010b
+0049   0037 44          	DB 01000100b
+0050   0038 88          	db 10001000b
+0051   0039 10          	db 00010000b
+0052   003A 20          	db 00100000b
+0053   003B 40          	db 01000000b
+0054   003C 80          	db 10000000b
+0055   003D 00          	db 00000000b
+0056   003E 80          	db 10000000b
+0057   003F C0          	db 11000000b
+0058   0040 60          	db 01100000b
+0059   0041 30          	db 00110000b
+0060   0042 18          	db 00011000b
+0061   0043 0C          	db 00001100b
+0062   0044 06          	db 00000110b
+0063   0045 03          	db 00000011b
+0064   0046 01          	db 00000001b
+0065   0047 00          	db 00000000b
+0066   0048 01          	db 00000001b
+0067   0049 03          	db 00000011b
+0068   004A 07          	db 00000111b
+0069   004B 0F          	db 00001111b
+0070   004C 1F          	db 00011111b
+0071   004D 3F          	db 00111111b
+0072   004E 7F          	db 01111111b
+0073   004F FF          	db 11111111b
+0074   0050 FE          	db 11111110b
+0075   0051 FC          	db 11111100b
+0076   0052 F8          	db 11111000b
+0077   0053 F0          	db 11110000b
+0078   0054 E0          	db 11100000b
+0079   0055 C0          	db 11000000b
+0080   0056 80          	db 10000000b
+0081   0057 00          	db 00000000b
+0082   0058             
+0083   0058 2A          	DB EOF
+0084   0059             
+0085   0059             
+0086   0059             EOF	EQU 042  ; end of data
+0087   0059             	END
 Number of errors = 0
