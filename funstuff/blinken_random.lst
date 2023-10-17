@@ -1,0 +1,61 @@
+---------------------------------------------
+8085 ASSEMBLER LISTING
+Line   Addr Opcode      Label   Instruction
+---------------------------------------------
+0001   0000             	            ;  Altair blinken lights with memory array of light patterns.
+0002   0000             	            ;  Fill up the memory starting at DATA with patterns you like.
+0003   0000             	            ;  Or just generate bunch of random bytes.
+0004   0000             	            ;  Whatever you want, put it at DATA and terminate the list with 0.
+0005   0000             
+0006   0000             	ORG 0h
+0007   0000 21 31 00    INIT	LXI H,DATA   ;  HL points to blinken data
+0008   0003 22 2F 00    	SHLD SAVE_HL
+0009   0006             
+0010   0006 2A 2F 00    GETD	LHLD SAVE_HL   ;  restore HL
+0011   0009 7E          	MOV A,M     ;  get data @ HL
+0012   000A FE 2A       	CPI EOF     ;  End of the data list?
+0013   000C CA 00 00    	JZ INIT     ;  Yes, reset HL pointer.
+0014   000F 57          	MOV D,A     ;  No, put in D register for the display pattern.
+0015   0010 2C          	INR L       ;  HL++
+0016   0011 22 2F 00    	SHLD SAVE_HL   ;  Save data
+0017   0014             
+0018   0014             
+0019   0014 21 00 00    INPDEL	LXI H,0     ;  Init HL to zero before starting the delay loop
+0020   0017 DB FF       	IN 0ffh
+0021   0019 FE FF       	CPI 0ffh    ;  All Sense switches on is a HALT.
+0022   001B CA 2E 00    	JZ DONE
+0023   001E C6 01       	ADI 1
+0024   0020 4F          	MOV C,A     ;  sense switches to B
+0025   0021 06 00       	MVI B,0     ;  BC = <sense>00
+0026   0023             
+0027   0023 1A          BLINK	LDAX D
+0028   0024 1A          	LDAX D
+0029   0025 1A          	LDAX D
+0030   0026 1A          	LDAX D
+0031   0027 09          	DAD B
+0032   0028 D2 23 00    	JNC BLINK
+0033   002B             	            ;  Done with this loop go get the next D
+0034   002B C3 06 00    	JMP GETD
+0035   002E             
+0036   002E             	            ;  Halt if FF on sense switches. Some way to drop out.
+0037   002E 76          DONE	HLT
+0038   002F             
+0039   002F             	            ;  Somewhere to save HL, since it will get clobbered by the delay routine.
+0040   002F 00 00       SAVE_HL	DW 0
+0041   0031             	            ;  Put your pattern list here... this is just jiggy wiggy back forth here.
+0042   0031             
+0043   0031 A6 13 AE 61 DATA	DW 13A6h,61AEh,B83Eh,E260h
+0043   0035 3E B8 60 E2 
+0044   0039 EF 56 84 66 	DW 56EFh,6684h,F657h,6623h
+0044   003D 57 F6 23 66 
+0045   0041 7E 63 BF D2 	DW 637Eh,D2BFh,1E17h,092Eh
+0045   0045 17 1E 2E 09 
+0046   0049             
+0047   0049             
+0048   0049             
+0049   0049 2A          	DB EOF
+0050   004A             
+0051   004A             
+0052   004A             EOF	EQU 042     ;  end of data
+0053   004A             	END
+Number of errors = 0

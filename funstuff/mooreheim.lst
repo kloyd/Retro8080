@@ -1,0 +1,60 @@
+---------------------------------------------
+8085 ASSEMBLER LISTING
+Line   Addr Opcode      Label   Instruction
+---------------------------------------------
+0001   0000             CR	equ 0dh
+0002   0000             LF	equ 0ah
+0003   0000             	ORG 00H
+0004   0000 21 00 00    	lxi h,0
+0005   0003 16 80       	mvi d,080h
+0006   0005 31 00 20    	LXI SP,2000h
+0007   0008             
+0008   0008 D5          	PUSH D
+0009   0009 11 28 00    	LXI D,welcomemsg
+0010   000C             
+0011   000C CD 19 00    	CALL PRINTIT
+0012   000F D1          	POP D
+0013   0010 D5          	PUSH D
+0014   0011 11 56 00    	LXI D,instruction
+0015   0014 CD 19 00    	CALL PRINTIT
+0016   0017 D1          	POP D
+0017   0018             
+0018   0018 76          	HLT
+0019   0019             
+0020   0019             PRINTIT
+0021   0019 F5          	PUSH PSW    ;  Save accumulator and status since we are going to clobber them.
+0022   001A 1A          OUT1CH	LDAX D      ;  LET A = (DE)
+0023   001B FE 00       	CPI 0h      ;  Done when null terminated.
+0024   001D CA 26 00    	JZ DONE
+0025   0020 D3 01       	OUT 1h      ;  Output the character at the current address to the console
+0026   0022 1C          	INR E       ;  Increment the address of the current character
+0027   0023 C3 1A 00    	JMP OUT1CH
+0028   0026 F1          DONE	POP PSW     ;  put back accumulator and status.
+0029   0027 C9          	RET
+0030   0028             
+0031   0028 57 65 6C 63 welcomemsg	DB "Welcome to the gambling halls of Mooreheim!",CR,LF,0h
+0031   002C 6F 6D 65 20 
+0031   0030 74 6F 20 74 
+0031   0034 68 65 20 67 
+0031   0038 61 6D 62 6C 
+0031   003C 69 6E 67 20 
+0031   0040 68 61 6C 6C 
+0031   0044 73 20 6F 66 
+0031   0048 20 4D 6F 6F 
+0031   004C 72 65 68 65 
+0031   0050 69 6D 21 0D 
+0031   0054 0A 00       
+0032   0056 54 6F 67 67 instruction	DB "Toggle 1st 5 switches to store your dice.",CR,LF,0h
+0032   005A 6C 65 20 31 
+0032   005E 73 74 20 35 
+0032   0062 20 73 77 69 
+0032   0066 74 63 68 65 
+0032   006A 73 20 74 6F 
+0032   006E 20 73 74 6F 
+0032   0072 72 65 20 79 
+0032   0076 6F 75 72 20 
+0032   007A 64 69 63 65 
+0032   007E 2E 0D 0A 00 
+0033   0082             
+0034   0082             END
+Number of errors = 0
